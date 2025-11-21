@@ -48,7 +48,7 @@ pipeline {
                 sh '''
                     npm install serve
                     chmod +x node_modules/serve
-                    node_modules/serve -s build &
+                    ./node_modules/serve -s build &
                     sleep 10
                     npx playwright test
                     '''
