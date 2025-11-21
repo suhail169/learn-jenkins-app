@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     stages {
+        /*
         stage('Build') {
             agent {
                 docker {
@@ -20,7 +21,8 @@ pipeline {
                     '''
                }
         }
-        stage('test'){
+        */
+        stage('Unit_test'){
             agent{
                  docker {
                     image 'node:18-alpine'
@@ -31,6 +33,21 @@ pipeline {
                 sh '''
                     test -f build/index.html
                     npm test
+                    '''
+            }
+        }
+         stage('ETE'){
+            agent{
+                 docker {
+                    image 'mcr.microsoft.com/playwright:v1.56.1-noble'
+                    reuseNode true
+                }
+            }
+            steps{
+                sh '''
+                    npm install serve
+                    node_modules/serve -s serve
+                    npm playwright test
                     '''
             }
         }
