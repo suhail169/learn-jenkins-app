@@ -76,6 +76,14 @@ pipeline {
                 }
             }
         }
+        stage('response'){
+            steps{
+                timeout(1) {
+                    input 'yes , i want to deploy'
+                }
+                
+            }
+        }
 
         stage('Deploy') {
             agent {
