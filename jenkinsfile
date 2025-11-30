@@ -87,7 +87,7 @@ pipeline {
             }
 
             environment {
-                CI_ENVIRONMENT_URL = 'below it will be set'
+                CI_ENVIRONMENT_URL='below it will be set'
             }
 
             steps {
