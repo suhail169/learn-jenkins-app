@@ -115,7 +115,8 @@ pipeline {
                     input 'yes , i want to deploy'
                 }
                 
-            } 
+            }
+        } 
 
         stage('Prod Deploy & E2E') {
             agent {
