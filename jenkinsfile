@@ -102,13 +102,13 @@ pipeline {
                 '''
                 script {
                     env.CI_ENVIRONMENT_URL = sh(script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json",
-                    returnStdout: true)
+                    returnStdout: true).trim()
                     
                 }
                 sh '''
                     
                     npx playwright test  --reporter=html
-                    
+
                     '''
 
             post {
