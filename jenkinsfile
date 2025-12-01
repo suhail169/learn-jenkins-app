@@ -104,6 +104,7 @@ pipeline {
                             returnStdout: true).trim()
                     
                     }
+                    echo "Extracted deploy URL: '${env.CI_ENVIRONMENT_URL}'"
                     
                     npx playwright test  --reporter=html
 
