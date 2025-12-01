@@ -98,10 +98,31 @@ pipeline {
                     echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
                     npx netlify deploy --dir=build --no-build --json > deploy-output.json
-                    CI_ENVIRONMENT_URL=$(node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json)
-                    npx playwright test  --reporter=html
 
                 '''
+                script {
+                    // Extract deploy URL
+                    def deployUrl = sh(
+                        script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json",
+                        returnStdout: true).trim()
+
+                if (!deployUrl) {
+                    error "❌ Netlify deploy did not return a URL!"
+                }
+
+                echo "✅ Extracted deploy URL: ${deployUrl}"
+
+                // Update the declarative environment variable
+                env.CI_ENVIRONMENT_URL = deployUrl
+                }
+
+                // Now this sh sees the updated environment
+                sh '''
+                    echo "Playwright using URL: $CI_ENVIRONMENT_URL"
+                    npx playwright test --reporter=html
+                '''
+    }
+
                 
             }
             post {
