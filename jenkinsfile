@@ -105,14 +105,11 @@ pipeline {
                             returnStdout: true).trim()
                         echo "Extracted deploy URL: '${env.CI_ENVIRONMENT_URL}'"
                     }
-                    
-                sh """
-                    export CI_ENVIRONMENT_URL="${env.CI_ENVIRONMENT_URL}"
-
-                    echo "Playwright will use: \$CI_ENVIRONMENT_URL"
-
-                    npx playwright test --reporter=html
-                """
+                withEnv(["CI_ENVIRONMENT_URL=${env.CI_ENVIRONMENT_URL}"]) {
+                    sh 'echo "Playwright using URL: $CI_ENVIRONMENT_URL"'
+                    sh 'npx playwright test --reporter=html'   
+                } 
+                
                     
 
                 
