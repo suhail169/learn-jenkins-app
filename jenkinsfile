@@ -1,8 +1,6 @@
 pipeline {
     agent any
     environment{
-        NETLIFY_SITE_ID ='2ecfe6e6-df40-4f89-af1e-6892735d207b'
-        NETLIFY_AUTH_TOKEN= credentials('netlify-token')
         REACT_APP_VERSION = '1.2.3'
     }
     
@@ -26,134 +24,19 @@ pipeline {
                     '''
                }
         }
-        
-        stage('Tests') {
-            parallel {
-                stage('Unit tests') {
-                    agent {
-                        docker {
-                            image 'node:18-alpine'
-                            reuseNode true
-                        }
-                    }
-
-                    steps {
-                        sh '''
-                            #test -f build/index.html
-                            npm test
-                        '''
-                    }
-                    post {
-                        always {
-                            junit 'jest-results/junit.xml'
-                        }
+        stage('AWS'){
+            stage('Deploy to AWS') {
+                agent {
+                    docker {
+                        image 'amazon/aws-cli'
+                        reuseNode true
+                        args "-u root --entrypoint=''"
                     }
                 }
-
-                stage('E2E') {
-                    agent {
-                        docker {
-                            image 'my_playwright'
-                            reuseNode true
-                        }
-                    }
-
-                    steps {
-                        sh '''
-                            serve -s build &
-                            sleep 10
-                            npx playwright test  --reporter=html
-                        '''
-                    }
-
-                    post {
-                        always {
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Local', reportTitles: '', useWrapperFileDirectly: true])
-                        }
-                    }
+                steps{
+                    sh 'aws --version'
                 }
-            }
         }
-       
-        stage('Build deploy & E2E') {
-            agent {
-                docker {
-                    image 'my_playwright'
-                    reuseNode true
-                }
-            }
-
-            environment {
-                CI_ENVIRONMENT_URL='below it will be set'
-            }
-
-            steps {
-                sh '''
-                     
-
-                    echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                    npx netlify deploy --dir=build --no-build --json > deploy-output.json
-
-                    # Extract deploy URL from JSON
-                    CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' deploy-output.json)
-
-                    if [ -z "$CI_ENVIRONMENT_URL" ]; then
-                        echo "❌ Could not extract deploy URL!"
-                        exit 1
-                    fi
-
-                    echo "✅ Playwright using URL: $CI_ENVIRONMENT_URL"
-
-                    # Export the URL so Playwright sees it
-                    export CI_ENVIRONMENT_URL
-
-                    # Run Playwright tests
-                    npx playwright test --reporter=html
-                '''
-                
-            }
-            post {
-                always {
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Staging E2E', reportTitles: '', useWrapperFileDirectly: true])
-                }
-            }
-        }
-        stage('response'){
-            steps{
-                timeout(1) {
-                    input 'yes , i want to deploy'
-                }
-                
-            }
-        } 
-
-        stage('Prod Deploy & E2E') {
-            agent {
-                docker {
-                    image 'my_playwright'
-                    reuseNode true
-                }
-            }
-
-            environment {
-                CI_ENVIRONMENT_URL = 'https://cozy-cat-44dca2.netlify.app'
-            }
-
-            steps {
-                sh '''
-                    netlify --version
-                    echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                    netlify status
-                    npx netlify deploy --dir=build --no-build --prod
-                    npx playwright test  --reporter=html
-                '''
-            }
-
-            post {
-                always {
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'prod E2E', reportTitles: '', useWrapperFileDirectly: true])
-                }
-            }
-        }
+    
     }
-}
+}    
