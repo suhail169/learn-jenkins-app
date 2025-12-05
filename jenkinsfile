@@ -24,7 +24,7 @@ pipeline {
                     '''
                }
         }
-
+        
         stage('Buid Docker image'){
             agent {
                 docker {
@@ -35,7 +35,7 @@ pipeline {
             }
             steps{
                 sh '''
-                    amazon-linux-extras install docker
+                    
                     docker build  -t myjenkinsapp .
                 '''
             }
