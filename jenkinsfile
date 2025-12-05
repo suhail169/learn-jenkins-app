@@ -1,7 +1,8 @@
 pipeline {
     agent any
     environment{
-        REACT_APP_VERSION = '1.2.3'
+        REACT_APP_VERSION = "1.2.$BUILD_ID"
+        APP_VERSION = 'myjenkinsapp'
     }
     
 
@@ -36,7 +37,7 @@ pipeline {
             steps{
                 sh '''
                     
-                    docker build  -t myjenkinsapp .
+                    docker build  -t $APP_VERSION:$REACT_APP_VERSION .
                 '''
             }
         }
@@ -50,6 +51,7 @@ pipeline {
             }
             steps{
                 sh 'aws --version'
+
             }
         }
     
