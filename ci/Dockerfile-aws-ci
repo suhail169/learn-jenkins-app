@@ -1,9 +1,12 @@
 FROM amazon/aws-cli:latest
 
-# Install required deps
+# Remove old docker client if it exists
+RUN rm -f /usr/bin/docker || true
+
+# Install deps
 RUN dnf install -y tar curl jq && dnf clean all
 
-# Install latest Docker CLI (compatible with latest Docker API versions)
+# Install latest Docker CLI
 ENV DOCKER_VERSION=27.2.0
 
 RUN curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-$DOCKER_VERSION.tgz -o docker.tgz \
@@ -11,5 +14,5 @@ RUN curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-$DO
     && mv docker/* /usr/local/bin/ \
     && rm -rf docker docker.tgz
 
-# Verify installation
-RUN aws --version && docker --version && jq --version
+# Verify
+RUN which docker && docker --version && aws --version
