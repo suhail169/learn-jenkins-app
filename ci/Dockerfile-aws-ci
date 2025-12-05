@@ -1,15 +1,29 @@
-FROM amazon/aws-cli:latest
+FROM ubuntu:22.04
 
-# Install required deps
-RUN dnf install -y tar curl jq && dnf clean all
+# Avoid interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install latest Docker CLI (compatible with latest Docker API versions)
+# Install core tools
+RUN apt-get update && \
+    apt-get install -y \
+        curl \
+        unzip \
+        jq \
+        ca-certificates && \
+    update-ca-certificates
+
+# Install AWS CLI v2
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf aws awscliv2.zip
+
+# Install latest Docker CLI (client only)
 ENV DOCKER_VERSION=27.2.0
-
 RUN curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-$DOCKER_VERSION.tgz -o docker.tgz \
     && tar xzf docker.tgz \
     && mv docker/* /usr/local/bin/ \
     && rm -rf docker docker.tgz
 
-# Verify installation
+# Verify tools
 RUN aws --version && docker --version && jq --version
