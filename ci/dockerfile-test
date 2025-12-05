@@ -1,0 +1,18 @@
+FROM amazon/aws-cli:2.32.10
+
+# Remove old docker client if it exists (Amazon Linux includes an outdated one)
+RUN rm -f /usr/bin/docker || true
+
+# Install jq and required tools
+RUN dnf install -y jq tar gzip curl && dnf clean all
+
+# Install the latest Docker CLI (client only)
+ENV DOCKER_VERSION=27.2.0
+
+RUN curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-$DOCKER_VERSION.tgz -o docker.tgz \
+    && tar xzf docker.tgz \
+    && mv docker/* /usr/local/bin/ \
+    && rm -rf docker docker.tgz
+
+# Verify everything works
+RUN aws --version && docker --version && jq --version
