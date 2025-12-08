@@ -52,7 +52,7 @@ pipeline {
                 docker {
                     image 'aws-cli'
                     reuseNode true
-                    args "-u root --entrypoint=''"
+                    args "-u root --entrypoint='' -e AWS_ECS_CLUSTER -e AWS_ECS_SERVICE_PROD -e AWS_ECS_TD_PROD -e AWS_DEFAULT_REGION"
                 }
             }
             steps{
