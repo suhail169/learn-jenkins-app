@@ -5,7 +5,6 @@ pipeline {
         AWS_DEFAULT_REGION = 'ap-south-1'
         APP_VERSION = 'myjenkinsapp'
         APP_NAME = 'learnjenkinsapp'
-        AWS_DEFAULT_REGION = 'us-east-1'
         AWS_DOCKER_REGISTRY = '654654281644.dkr.ecr.us-east-1.amazonaws.com'
         AWS_ECS_CLUSTER = 'LearnJenkinsApp-Cluster-Prod'
         AWS_ECS_SERVICE_PROD = 'LearnJenkinsApp-Service-Prod'
